@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_product_product_form_inherited" model="ir.ui.view">
+            <field name="name">product.product.form.inherit</field>
+            <field name="model">product.product</field>
+            <field name="inherit_id" ref="product.product_product_tree_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='qty_available']" position="after">
+                    <field name="qty_lhr"/>
+                    <field name="qty_karachi"/>
+                    <field name="qty_isb"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+
+
+    <record id="sale_inherit_sale_ext" model="ir.ui.view">
+        <field name="name">sale.form.inherit</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='order_line']/tree/field[@name='name']" position="after">
+                <button type="object" name="open_product_selection_wizard" icon="fa-list"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_multiple_product_wizard_form" model="ir.ui.view">
+        <field name="name">multiple.product.wizard.form</field>
+        <field name="model">multiple.product.wizard.dir</field>
+        <field name="arch" type="xml">
+            <form string="Product Stock Information">
+                <group>
+                    <field name="product_id" readonly="1"/>
+                </group>
+                <group>
+                    <field name="line_ids">
+                        <tree string="Product Quantities">
+                            <field name="warehouse_id"/>
+                            <field name="qty_on_hand"/>
+                            <field name="qty_available"/>
+                        </tree>
+                    </field>
+                </group>
+                <footer>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+
+    <record id="multiple_product_wizard_action_id" model="ir.actions.act_window">
+        <field name="name">SaleOrderExt</field>
+        <field name="res_model">multiple.product.wizard.dir</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="view_id" ref="product_ext.view_multiple_product_wizard_form"/>
+    </record>
+
+    <!-- Tree View Definition -->
+    <record id="product_onhands_tree_view" model="ir.ui.view">
+        <field name="name">product.onhands.model.tree</field>
+        <field name="model">product.product</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="default_code"/>
+                <field name="name"/>
+                <field name="qty_available"/>
+                <field name="qty_lhr"/>
+                <field name="qty_karachi"/>
+                <field name="qty_isb"/>
+                <button name="create_purchase_order" type="object" string="Create PO" class="oe_highlight"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="product_onhands_action" model="ir.actions.act_window">
+        <field name="name">Branch Wise Quantity</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">product.product</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="product_onhands_tree_view"/>
+        <field name="domain">[('qty_available', '&lt;', 5), '|', ('qty_lhr', '&lt;', 5), '|', ('qty_karachi', '&lt;',
+            5), ('qty_isb', '&lt;', 5)]
+        </field>
+    </record>
+
+
+    <!-- Menu Item Definition -->
+    <menuitem id="stock_branch_root"
+              name="Branch Wise Quantity"
+              parent="stock.menu_stock_root"
+              action="product_onhands_action"/>
+
+</odoo>
